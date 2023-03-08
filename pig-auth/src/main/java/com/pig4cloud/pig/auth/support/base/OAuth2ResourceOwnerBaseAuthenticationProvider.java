@@ -3,6 +3,7 @@ package com.pig4cloud.pig.auth.support.base;
 import cn.hutool.extra.spring.SpringUtil;
 import com.pig4cloud.pig.common.security.util.OAuth2ErrorCodesExpand;
 import com.pig4cloud.pig.common.security.util.ScopeException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -13,10 +14,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
-import org.springframework.security.oauth2.server.authorization.context.ProviderContextHolder;
+import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
 import org.springframework.security.oauth2.server.authorization.token.DefaultOAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
@@ -34,6 +36,7 @@ import java.util.function.Supplier;
  *
  * 处理自定义授权
  */
+@Slf4j
 public abstract class OAuth2ResourceOwnerBaseAuthenticationProvider<T extends OAuth2ResourceOwnerBaseAuthenticationToken>
 		implements AuthenticationProvider {
 
@@ -138,22 +141,24 @@ public abstract class OAuth2ResourceOwnerBaseAuthenticationProvider<T extends OA
 			LOGGER.debug("got usernamePasswordAuthenticationToken=" + usernamePasswordAuthenticationToken);
 
 			Authentication usernamePasswordAuthentication = authenticationManager
-					.authenticate(usernamePasswordAuthenticationToken);
+				.authenticate(usernamePasswordAuthenticationToken);
 
 			// @formatter:off
 			DefaultOAuth2TokenContext.Builder tokenContextBuilder = DefaultOAuth2TokenContext.builder()
 					.registeredClient(registeredClient)
 					.principal(usernamePasswordAuthentication)
-					.providerContext(ProviderContextHolder.getProviderContext())
+					.authorizationServerContext(AuthorizationServerContextHolder.getContext())
 					.authorizedScopes(authorizedScopes)
 					.authorizationGrantType(AuthorizationGrantType.PASSWORD)
 					.authorizationGrant(resouceOwnerBaseAuthentication);
 			// @formatter:on
 
 			OAuth2Authorization.Builder authorizationBuilder = OAuth2Authorization
-					.withRegisteredClient(registeredClient).principalName(usernamePasswordAuthentication.getName())
-					.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-					.attribute(OAuth2Authorization.AUTHORIZED_SCOPE_ATTRIBUTE_NAME, authorizedScopes);
+				.withRegisteredClient(registeredClient)
+				.principalName(usernamePasswordAuthentication.getName())
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				// 0.4.0 新增的方法
+				.authorizedScopes(authorizedScopes);
 
 			// ----- Access token -----
 			OAuth2TokenContext tokenContext = tokenContextBuilder.tokenType(OAuth2TokenType.ACCESS_TOKEN).build();
@@ -168,11 +173,12 @@ public abstract class OAuth2ResourceOwnerBaseAuthenticationProvider<T extends OA
 					generatedAccessToken.getExpiresAt(), tokenContext.getAuthorizedScopes());
 			if (generatedAccessToken instanceof ClaimAccessor) {
 				authorizationBuilder.id(accessToken.getTokenValue())
-						.token(accessToken,
-								(metadata) -> metadata.put(OAuth2Authorization.Token.CLAIMS_METADATA_NAME,
-										((ClaimAccessor) generatedAccessToken).getClaims()))
-						.attribute(OAuth2Authorization.AUTHORIZED_SCOPE_ATTRIBUTE_NAME, authorizedScopes)
-						.attribute(Principal.class.getName(), usernamePasswordAuthentication);
+					.token(accessToken,
+							(metadata) -> metadata.put(OAuth2Authorization.Token.CLAIMS_METADATA_NAME,
+									((ClaimAccessor) generatedAccessToken).getClaims()))
+					// 0.4.0 新增的方法
+					.authorizedScopes(authorizedScopes)
+					.attribute(Principal.class.getName(), usernamePasswordAuthentication);
 			}
 			else {
 				authorizationBuilder.id(accessToken.getTokenValue()).accessToken(accessToken);
@@ -213,7 +219,6 @@ public abstract class OAuth2ResourceOwnerBaseAuthenticationProvider<T extends OA
 
 		}
 		catch (Exception ex) {
-			LOGGER.error("problem in authenticate", ex);
 			throw oAuth2AuthenticationException(authentication, (AuthenticationException) ex);
 		}
 
@@ -240,7 +245,7 @@ public abstract class OAuth2ResourceOwnerBaseAuthenticationProvider<T extends OA
 		}
 		if (authenticationException instanceof LockedException) {
 			return new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodesExpand.USER_LOCKED, this.messages
-					.getMessage("AbstractUserDetailsAuthenticationProvider.locked", "User account is locked"), ""));
+				.getMessage("AbstractUserDetailsAuthenticationProvider.locked", "User account is locked"), ""));
 		}
 		if (authenticationException instanceof DisabledException) {
 			return new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodesExpand.USER_DISABLE,
@@ -249,7 +254,7 @@ public abstract class OAuth2ResourceOwnerBaseAuthenticationProvider<T extends OA
 		}
 		if (authenticationException instanceof AccountExpiredException) {
 			return new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodesExpand.USER_EXPIRED, this.messages
-					.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"), ""));
+				.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"), ""));
 		}
 		if (authenticationException instanceof CredentialsExpiredException) {
 			return new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodesExpand.CREDENTIALS_EXPIRED,
@@ -261,7 +266,10 @@ public abstract class OAuth2ResourceOwnerBaseAuthenticationProvider<T extends OA
 			return new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_SCOPE,
 					this.messages.getMessage("AbstractAccessDecisionManager.accessDenied", "invalid_scope"), ""));
 		}
-		return new OAuth2AuthenticationException(OAuth2ErrorCodesExpand.UN_KNOW_LOGIN_ERROR);
+
+		log.error(authenticationException.getLocalizedMessage());
+		return new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR),
+				authenticationException.getLocalizedMessage(), authenticationException);
 	}
 
 	private OAuth2ClientAuthenticationToken getAuthenticatedClientElseThrowInvalidClient(

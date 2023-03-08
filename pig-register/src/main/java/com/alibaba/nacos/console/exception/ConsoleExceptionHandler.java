@@ -16,10 +16,10 @@
 
 package com.alibaba.nacos.console.exception;
 
+import com.alibaba.nacos.plugin.auth.exception.AccessException;
 import com.alibaba.nacos.common.model.RestResultUtils;
 import com.alibaba.nacos.common.utils.ExceptionUtil;
 import com.alibaba.nacos.core.utils.Commons;
-import com.alibaba.nacos.plugin.auth.exception.AccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -42,6 +42,7 @@ public class ConsoleExceptionHandler {
 
 	@ExceptionHandler(AccessException.class)
 	private ResponseEntity<String> handleAccessException(AccessException e) {
+		LOGGER.error("got exception. {}", e.getErrMsg());
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getErrMsg());
 	}
 
@@ -56,7 +57,7 @@ public class ConsoleExceptionHandler {
 		LOGGER.error("CONSOLE {}", uri, e);
 		if (uri.contains(Commons.NACOS_SERVER_VERSION_V2)) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(RestResultUtils.failed(ExceptionUtil.getAllExceptionMsg(e)));
+				.body(RestResultUtils.failed(ExceptionUtil.getAllExceptionMsg(e)));
 		}
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionUtil.getAllExceptionMsg(e));
 	}

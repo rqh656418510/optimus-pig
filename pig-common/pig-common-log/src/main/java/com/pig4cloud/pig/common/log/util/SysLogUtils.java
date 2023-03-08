@@ -46,7 +46,7 @@ public class SysLogUtils {
 
 	public SysLog getSysLog() {
 		HttpServletRequest request = ((ServletRequestAttributes) Objects
-				.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+			.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
 		SysLog sysLog = new SysLog();
 		sysLog.setType(LogTypeEnum.NORMAL.getType());
 		sysLog.setRemoteAddr(ServletUtil.getClientIP(request));
@@ -54,6 +54,8 @@ public class SysLogUtils {
 		sysLog.setMethod(request.getMethod());
 		sysLog.setUserAgent(request.getHeader(HttpHeaders.USER_AGENT));
 		sysLog.setParams(HttpUtil.toParams(request.getParameterMap()));
+		sysLog.setCreateBy(getUsername());
+		sysLog.setUpdateBy(getUsername());
 		return sysLog;
 	}
 

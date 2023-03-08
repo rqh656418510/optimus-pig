@@ -59,7 +59,7 @@ public class OauthClientDetailsController {
 	@GetMapping("/{clientId}")
 	public R<List<SysOauthClientDetails>> getByClientId(@PathVariable String clientId) {
 		return R.ok(sysOauthClientDetailsService
-				.list(Wrappers.<SysOauthClientDetails>lambdaQuery().eq(SysOauthClientDetails::getClientId, clientId)));
+			.list(Wrappers.<SysOauthClientDetails>lambdaQuery().eq(SysOauthClientDetails::getClientId, clientId)));
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class OauthClientDetailsController {
 		return R.ok();
 	}
 
-	@Inner(false)
+	@Inner
 	@GetMapping("/getClientDetailsById/{clientId}")
 	public R getClientDetailsById(@PathVariable String clientId) {
 		return R.ok(sysOauthClientDetailsService.getOne(

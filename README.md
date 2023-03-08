@@ -32,17 +32,28 @@
 
 ## 快速开始
 
+### 分支说明
+
+- master: java8 + springboot 2.7 + springcloud 2021
+- jdk17: java17 + springboot 3.0 + springcloud 2022
+
+| 分支              | 说明                                                               |
+|-----------------|------------------------------------------------------------------|
+| master          | java8 + springboot 2.7 + springcloud 2021                        |
+| sca-springboot3 | java17 + springboot 3.0 + springcloud 2022 |
+| sct-springboot3 | java17 + springboot 3.0 + springcloud 2022 |
+
+
 ### 核心依赖
 
 | 依赖                   | 版本         |
 | ---------------------- |------------|
-| Spring Boot            | 2.7.4      |
-| Spring Cloud           | 2021.0.4   |
+| Spring Boot            | 2.7.9      |
+| Spring Cloud           | 2021.0.6   |
 | Spring Cloud Alibaba   | 2021.0.4.0 |
-| Spring Authorization Server | 0.3.1      |
-| Mybatis Plus           | 3.5.2      |
-| hutool                 | 5.8.8      |
-| Avue                   | 3.1.3      |
+| Spring Authorization Server | 0.4.1      |
+| Mybatis Plus           | 3.5.3.1    |
+| hutool                 | 5.8.12     |
 
 ### 模块说明
 

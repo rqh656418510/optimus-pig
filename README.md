@@ -164,7 +164,7 @@ pig 开源软件遵循 [Apache 2.0 协议](https://www.apache.org/licenses/LICEN
 
 ### 合并上游代码
 
-- 第一步
+- 第一步，更新master分支的代码
 
 ``` sh
 # 切换到本地的master分支
@@ -180,15 +180,28 @@ $ git merge upstream/master
 $ git push origin master
 ```
 
-- 第二步
+- 第二步，更新optimus分支的代码
 
 ``` sh
 # 切换到本地的optimus分支
-git checkout optimus
+$ git checkout optimus
 
 # 合并本地master分支的代码
-git merge master
+$ git merge master
 
 # 提交本地optimus分支的代码
 $ git push origin optimus
+```
+
+- 第三步，发布optimus分支的代码
+
+``` sh
+# 切换到本地的optimus分支
+$ git checkout optimus
+
+# 编译本地optimus分支的代码
+$ mvn clean compile install
+
+# 发布本地optimus分支的代码到私有仓库
+$ mvn deploy
 ```

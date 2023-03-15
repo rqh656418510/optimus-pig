@@ -164,7 +164,14 @@ pig 开源软件遵循 [Apache 2.0 协议](https://www.apache.org/licenses/LICEN
 
 ### 合并上游代码
 
-- 第一步，更新master分支的代码
+- 第一步，指定上游分支
+
+``` sh
+# 指定上游分支
+$ git remote add upstream https://github.com/pig-mesh/pig.git
+```
+
+- 第二步，更新master分支的代码
 
 ``` sh
 # 切换到本地的master分支
@@ -180,7 +187,7 @@ $ git merge upstream/master
 $ git push origin master
 ```
 
-- 第二步，更新optimus分支的代码
+- 第三步，更新optimus分支的代码
 
 ``` sh
 # 切换到本地的optimus分支
@@ -193,7 +200,7 @@ $ git merge master
 $ git push origin optimus
 ```
 
-- 第三步，发布optimus分支的代码
+- 第四步，发布optimus分支的代码
 
 ``` sh
 # 切换到本地的optimus分支

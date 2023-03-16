@@ -197,6 +197,19 @@
             </plugins>
         </pluginManagement>
         <plugins>
+			<!-- 打包源码 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
             <!--打包jar 与git commit 关联插件-->
             <plugin>
                 <groupId>io.github.git-commit-id</groupId>

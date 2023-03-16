@@ -4,6 +4,8 @@ server:
     basedir: logs
   error:
     include-message: always
+  servlet:
+    contextPath: /nacos
 
 db:
   num: 1

@@ -9,13 +9,6 @@
 # 1. 在本地执行一键部署脚本： bash deploy_pig_monitor.sh
 # 2. 等待 SpringBoot 服务启动完成
 
-# 判断当前用户是否为Root用户
-if [ $UID -eq 0 ]; then
-  echo -e "\033[31m Error: 请使用普通用户权限执行当前脚本 \033[0m"
-  echo -e "\033[31m Error: 程序退出执行 \033[0m"
-  exit 1
-fi
-
 # 读取INI配置文件
 function __readINI() {
  	INIFILE=$1; SECTION=$2; ITEM=$3
@@ -24,16 +17,19 @@ function __readINI() {
 }
 
 # 初始化连接参数
-_HOST=( $( __readINI /etc/rsyncd.ini OptimusFrontendApp host ) )
-_USER=( $( __readINI /etc/rsyncd.ini OptimusFrontendApp user ) )
-_MODULE=( $( __readINI /etc/rsyncd.ini OptimusFrontendApp module ) )
-_PASSWORD_FILE=( $( __readINI /etc/rsyncd.ini OptimusFrontendApp password_file ) )
+_HOST=( $( __readINI /etc/rsyncd.ini OptimusBaseBackendApp host ) )
+_USER=( $( __readINI /etc/rsyncd.ini OptimusBaseBackendApp user ) )
+_MODULE=( $( __readINI /etc/rsyncd.ini OptimusBaseBackendApp module ) )
+_PASSWORD_FILE=( $( __readINI /etc/rsyncd.ini OptimusBaseBackendApp password_file ) )
 
-# 应用的名称
-app_name="pig-monitor"
+# 模块的名称
+module_name="pig-monitor"
 
-# 应用的父级目录
+# 父模块的名称
 parent_name="pig-visual"
+
+# 容器名称（Docker）
+container_name="optimus-pig-monitor"
 
 # 当前日期
 cur_date=$(date "+%Y-%m-%d")
@@ -46,11 +42,11 @@ tmp_path="/tmp/build/optimus/$cur_date/$cur_time"
 cd ../../
 
 # 编译和打包项目
-mvn clean && mvn install && mvn package
+mvn clean install package -Pprod
 
-# 拷贝文件到临时目录
-mkdir -p $tmp_path/$app_name
-cp -rf ./$parent_name/$app_name/target/$app_name.jar $tmp_path/$app_name/$app_name.jar
+# 拷贝Jar文件到临时目录
+mkdir -p $tmp_path/$module_name
+cp -rf ./$parent_name/$module_name/target/$module_name.jar $tmp_path/$module_name/$module_name.jar
 
 # 同步文件到生产服务器（不能使用 "--delete" 参数删除目标目录比源目录多余的文件）
 rsync -avzP --no-o --no-g $tmp_path/ $_USER@$_HOST::$_MODULE/ --password-file=$_PASSWORD_FILE
@@ -59,7 +55,7 @@ rsync -avzP --no-o --no-g $tmp_path/ $_USER@$_HOST::$_MODULE/ --password-file=$_
 sleep 5
 
 # 重启生产服务器上的容器
-ssh root@open.techgrow.cn "docker-compose -f /usr/local/docker/docker-compose-files/optimus/docker-compose.yml restart $app_name"
+ssh root@$_HOST "docker-compose -f /usr/local/docker/docker-compose-files/optimus/docker-compose.yml restart $container_name"
 
 # 清理临时目录
 rm -rf $tmp_path

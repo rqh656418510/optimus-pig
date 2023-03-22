@@ -30,6 +30,11 @@
 	<description>pig 监控模块，基于 spring boot admin</description>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.optimus4cloud</groupId>
+			<artifactId>optimus-common-notify</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 		<!--监控服务端-->
 		<dependency>
 			<groupId>de.codecentric</groupId>

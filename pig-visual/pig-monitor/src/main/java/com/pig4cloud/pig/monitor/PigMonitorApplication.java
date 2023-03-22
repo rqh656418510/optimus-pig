@@ -27,7 +27,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  */
 @EnableAdminServer
 @EnableDiscoveryClient
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = { "com.pig4cloud.pig", "com.optimus4cloud.optimus" })
 public class PigMonitorApplication {
 
 	public static void main(String[] args) {

@@ -9,6 +9,13 @@
 # 1. 在本地执行一键部署脚本： bash deploy_pig_monitor.sh
 # 2. 等待 SpringBoot 服务启动完成
 
+# 判断当前用户是否为Root用户
+if [ ! $UID -eq 0 ]; then
+  echo -e "\033[31m Error: 请使用超级用户权限执行当前脚本 \033[0m"
+  echo -e "\033[31m Error: 程序退出执行 \033[0m"
+  exit 1
+fi
+
 # 读取INI配置文件
 function __readINI() {
  	INIFILE=$1; SECTION=$2; ITEM=$3

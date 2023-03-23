@@ -16,6 +16,13 @@ if [ ! $UID -eq 0 ]; then
   exit 1
 fi
 
+read -p "==> 是否执行编译打包操作[ 1-是，0-否，默认-是 ]：" execute_compile
+
+# 默认执行编译打包操作
+if  [ ! -n "$execute_compile" ] ;then
+  execute_compile=1
+fi
+
 # 读取INI配置文件
 function __readINI() {
  	INIFILE=$1; SECTION=$2; ITEM=$3
@@ -48,8 +55,10 @@ tmp_path="/tmp/build/optimus/$cur_date/$cur_time"
 # 进入项目的根目录
 cd ../../
 
-# 编译和打包项目
-mvn clean install package -Pprod
+# 执行编译打包操作
+if [ $execute_compile == 1 ] ; then
+  mvn clean install package -Pprod
+fi
 
 # 拷贝Jar文件到临时目录
 mkdir -p $tmp_path/$module_name

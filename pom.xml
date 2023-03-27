@@ -241,7 +241,8 @@
 				<profiles.active>dev</profiles.active>
 				<nacos.username>nacos</nacos.username>
 				<nacos.password>nacos</nacos.password>
-				<public.ip.address>127.0.0.1</public.ip.address>
+				<biz.public.ip.address>192.168.2.130</biz.public.ip.address>
+				<base.public.ip.address>192.168.2.130</base.public.ip.address>
 			</properties>
 			<activation>
 				<!-- 是否为默认环境 -->
@@ -258,7 +259,8 @@
 				<!--suppress UnresolvedMavenProperty -->
 				<nacos.password>${env.OPTIMUS_NACOS_PASSWORD}</nacos.password>
 				<!--suppress UnresolvedMavenProperty -->
-				<public.ip.address>${env.OPTIMUS_BASE_PUBLIC_IP}</public.ip.address>
+				<biz.public.ip.address>${env.OPTIMUS_BIZ_PUBLIC_IP}</biz.public.ip.address>
+				<base.public.ip.address>${env.OPTIMUS_BASE_PUBLIC_IP}</base.public.ip.address>
 			</properties>
 			<activation>
 				<!-- 是否为默认环境 -->

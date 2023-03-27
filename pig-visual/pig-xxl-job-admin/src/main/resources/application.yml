@@ -15,6 +15,7 @@ spring:
       username: @nacos.username@
       password: @nacos.password@
       discovery:
+        ip: @base.public.ip.address@
         server-addr: ${NACOS_HOST:pig-register}:${NACOS_PORT:8848}
         metadata:
           management.context-path: ${server.servlet.context-path}/actuator

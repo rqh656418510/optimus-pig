@@ -9,7 +9,7 @@ spring:
       username: @nacos.username@
       password: @nacos.password@
       discovery:
-        ip: @public.ip.address@
+        ip: @base.public.ip.address@
         server-addr: ${NACOS_HOST:pig-register}:${NACOS_PORT:8848}
       config:
         server-addr: ${spring.cloud.nacos.discovery.server-addr}
